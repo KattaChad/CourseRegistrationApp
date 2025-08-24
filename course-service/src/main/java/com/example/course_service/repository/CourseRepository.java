@@ -8,4 +8,6 @@ import com.example.course_service.dao.Course;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findBySubjectCode(String course_code);
+
+    boolean existsBySubjectCode(String course_code);
 }

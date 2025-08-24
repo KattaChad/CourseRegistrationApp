@@ -44,4 +44,9 @@ public class CourseController {
     public Course updateCourseById(@PathVariable Long id, @RequestBody Course course) {
         return courseService.updateCourse(id, course);
     }
+
+    @GetMapping("/exists/{course_code}")
+    public boolean courseExists(@PathVariable String course_code) {
+        return courseService.courseExists(course_code);
+    }
 }

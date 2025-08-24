@@ -37,4 +37,8 @@ public class CourseService {
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);
     }
+
+    public boolean courseExists(String course_code) {
+        return courseRepository.existsBySubjectCode(course_code);
+    }
 }
