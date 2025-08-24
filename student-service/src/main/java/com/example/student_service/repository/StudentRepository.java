@@ -7,5 +7,5 @@ import com.example.student_service.dao.Student;
 
 // JPA automatically makes all the necessary functions on it's own. HELL YEAHHHH!!!!
 public interface StudentRepository extends JpaRepository<Student, Long> {
-
+    boolean existsByRollNumber(String roll_number);
 }

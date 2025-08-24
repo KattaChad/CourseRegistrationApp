@@ -16,7 +16,7 @@ public class Student {
     private Long studentId;
 
     @Column(name = "roll_number")
-    private String roll_number;
+    private String rollNumber;
 
     @Column(name = "name")
     private String name;
@@ -40,10 +40,10 @@ public class Student {
     }
 
     public String getRoll_number() {
-        return roll_number;
+        return rollNumber;
     }
 
     public void setRoll_number(String roll_number) {
-        this.roll_number = roll_number;
+        this.rollNumber = roll_number;
     }
 }

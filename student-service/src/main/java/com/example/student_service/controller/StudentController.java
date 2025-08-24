@@ -41,4 +41,9 @@ public class StudentController {
     public Student updateStudentById(@PathVariable Long id, @RequestBody Student student) {
         return studentService.updateStudent(id, student);
     }
+
+    @GetMapping("/exists/{roll_number}")
+    public boolean existsByRollNumber(@PathVariable String roll_number) {
+        return studentService.existsRollNumber(roll_number);
+    }
 }

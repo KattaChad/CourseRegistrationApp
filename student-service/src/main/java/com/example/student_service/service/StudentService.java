@@ -33,4 +33,8 @@ public class StudentService {
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
     }
+
+    public boolean existsRollNumber(String roll_number) {
+        return studentRepository.existsByRollNumber(roll_number);
+    }
 }
