@@ -2,7 +2,9 @@ package com.example.enrollment_service.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,14 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.enrollment_service.dao.Enrollment;
 import com.example.enrollment_service.service.CourseAddService;
+import com.example.enrollment_service.service.CourseDropService;
 
 @RestController
 @RequestMapping("/api/enrollment")
 public class EnrollmentController {
     private final CourseAddService courseAddService;
+    private final CourseDropService courseDropService;
 
-    public EnrollmentController(CourseAddService courseAddService) {
+    public EnrollmentController(CourseAddService courseAddService, CourseDropService courseDropService) {
         this.courseAddService = courseAddService;
+        this.courseDropService = courseDropService;
     }
 
     @GetMapping("/courses")
@@ -38,5 +43,15 @@ public class EnrollmentController {
     @PostMapping("/enroll")
     public String addEnrollment(@RequestBody Enrollment enrollment) {
         return courseAddService.addCourse(enrollment);
+    }
+
+    @GetMapping("/registrations/{student_id}")
+    public List<Enrollment> fetchStudentEnrollments(@PathVariable String student_id) {
+        return courseAddService.getCoursesForStudent(student_id);
+    }
+
+    @DeleteMapping("/disenroll")
+    public String deleteEnrollment(@RequestBody Enrollment enrollment) {
+        return courseDropService.dropCourse(enrollment);
     }
 }
