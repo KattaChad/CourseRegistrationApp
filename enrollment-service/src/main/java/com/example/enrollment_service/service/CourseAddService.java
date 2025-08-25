@@ -28,8 +28,8 @@ public class CourseAddService {
     }
 
     public String addCourse(Enrollment enrollment) {
-        Boolean studentExists = restTemplate.getForObject(studentUrl + "/api/students/exists" + enrollment.getStudentId(), Boolean.class);
-        Boolean courseExists = restTemplate.getForObject(courseUrl + "api/courses/exists" + enrollment.getCourseCode(), Boolean.class);
+        Boolean studentExists = restTemplate.getForObject(studentUrl + "/api/students/exists/" + enrollment.getStudentId(), Boolean.class);
+        Boolean courseExists = restTemplate.getForObject(courseUrl + "/api/courses/exists/" + enrollment.getCourseCode(), Boolean.class);
 
         if(Boolean.FALSE.equals(studentExists)) {
             return "Student does not exist";

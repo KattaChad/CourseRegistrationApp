@@ -23,7 +23,7 @@ public class Enrollment {
     @Column(name = "course_code")
     private String courseCode;
 
-    @Column(name = "created_at") 
+    @Column(name = "created_at", insertable = false, updatable = false) 
     private LocalDateTime createdAt;
 
     public LocalDateTime getCreatedAt() {
