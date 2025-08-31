@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 import com.example.enrollment_service.dao.Enrollment;
 import com.example.enrollment_service.repository.EnrollmentRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CourseDropService {
     private final RestTemplate restTemplate;
@@ -25,28 +27,30 @@ public class CourseDropService {
         this.restTemplate = restTemplate;
     }
 
+    @Transactional
     public String dropCourse(Enrollment enrollment) {
-        Boolean studentExists = restTemplate.getForObject(studentUrl + "/api/students/exists/" + enrollment.getStudentId(), Boolean.class);
-        Boolean courseExists = restTemplate.getForObject(courseUrl + "/api/courses/exists/" + enrollment.getCourseCode(), Boolean.class);
-        
-        if(Boolean.FALSE.equals(studentExists)) {
+        Boolean studentExists = restTemplate.getForObject(
+                studentUrl + "/api/students/exists/" + enrollment.getStudentId(),
+                Boolean.class);
+        Boolean courseExists = restTemplate.getForObject(
+                courseUrl + "/api/courses/exists/" + enrollment.getCourseCode(),
+                Boolean.class);
+
+        if (Boolean.FALSE.equals(studentExists)) {
             return "Student does not exist";
         }
 
-        if(Boolean.FALSE.equals(courseExists)) {
+        if (Boolean.FALSE.equals(courseExists)) {
             return "Course does not exist";
         }
 
-        //add a conditional to check if the enrollment exists
-        Boolean exists = enrollmentRepository.existsByStudentIdAndCourseCode(enrollment.getStudentId(), enrollment.getCourseCode());
-        if(!exists) {
+        if (!enrollmentRepository.existsByStudentIdAndCourseCode(enrollment.getStudentId(),
+                enrollment.getCourseCode())) {
             return "Enrollment does not exist";
         }
-        
-        Enrollment existing = enrollmentRepository.findByStudentIdAndCourseCode(enrollment.getStudentId(), enrollment.getCourseCode());
-    
-        enrollmentRepository.delete(existing);
 
+        enrollmentRepository.deleteByStudentIdAndCourseCode(enrollment.getStudentId(), enrollment.getCourseCode());
         return "Course " + enrollment.getCourseCode() + " dropped for student " + enrollment.getStudentId();
     }
-}   
+
+}

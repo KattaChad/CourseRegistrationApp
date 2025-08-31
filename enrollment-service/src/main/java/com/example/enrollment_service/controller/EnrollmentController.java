@@ -50,8 +50,12 @@ public class EnrollmentController {
         return courseAddService.getCoursesForStudent(student_id);
     }
 
-    @DeleteMapping("/disenroll")
-    public String deleteEnrollment(@RequestBody Enrollment enrollment) {
+    @DeleteMapping("/disenroll/{studentId}/{courseCode}")
+    public String deleteEnrollment(@PathVariable String studentId, @PathVariable String courseCode) {
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudentId(studentId);
+        enrollment.setCourseCode(courseCode);
         return courseDropService.dropCourse(enrollment);
     }
+
 }
