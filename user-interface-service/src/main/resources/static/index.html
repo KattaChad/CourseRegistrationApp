@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Course Registration</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+
+        table {
+            margin-bottom: 20px;
+            width: 80%;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .drop-btn {
+            background-color: #f44336;
+        }
+
+        .drop-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Course Registration</h2>
+    <p id="student-info"></p>
+
+    <h3>Registered Courses</h3>
+    <table id="registered-table">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Title</th>
+                <th>Credits</th>
+                <th>Enrolled At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h3>Available Courses</h3>
+    <table id="available-table">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Title</th>
+                <th>Credits</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const studentId = params.get("roll");
+        document.getElementById("student-info").innerText = "Student ID: " + studentId;
+
+        const ENROLLMENT_API = "http://localhost:9995/api/enrollment";
+
+        async function fetchData() {
+            try {
+                // Fetch all courses
+                const coursesRes = await fetch(`${ENROLLMENT_API}/courses`);
+                const allCourses = await coursesRes.json();
+
+                // Fetch student registrations
+                const regRes = await fetch(`${ENROLLMENT_API}/registrations/${studentId}`);
+                const registrations = await regRes.json();
+
+                // Map courses by subjectCode for quick lookup
+                const courseMap = {};
+                allCourses.forEach(c => {
+                    courseMap[c.subjectCode] = c;
+                });
+
+                // Fill registered courses table
+                const regTableBody = document.querySelector("#registered-table tbody");
+                regTableBody.innerHTML = ""; // clear before reload
+                registrations.forEach(reg => {
+                    const course = courseMap[reg.courseCode];
+                    const row = `
+                        <tr>
+                          <td>${reg.courseCode}</td>
+                          <td>${course ? course.title : "Unknown"}</td>
+                          <td>${course ? course.credits : "-"}</td>
+                          <td>${new Date(reg.createdAt).toLocaleString()}</td>
+                          <td><button class="drop-btn" onclick="dropCourse('${reg.courseCode}')">Drop</button></td>
+                        </tr>`;
+                    regTableBody.insertAdjacentHTML("beforeend", row);
+                });
+
+                // Fill available courses table
+                const availTableBody = document.querySelector("#available-table tbody");
+                availTableBody.innerHTML = ""; // clear before reload
+                allCourses.forEach(course => {
+                    const row = `
+                        <tr>
+                          <td>${course.subjectCode}</td>
+                          <td>${course.title}</td>
+                          <td>${course.credits}</td>
+                          <td><button onclick="registerCourse('${course.subjectCode}')">Register</button></td>
+                        </tr>`;
+                    availTableBody.insertAdjacentHTML("beforeend", row);
+                });
+
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
+        }
+
+        async function registerCourse(courseCode) {
+            try {
+                const res = await fetch(`${ENROLLMENT_API}/enroll`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        studentId: studentId,
+                        courseCode: courseCode
+                    })
+                });
+
+                if (res.ok) {
+                    alert(`Successfully registered for ${courseCode}`);
+                    fetchData(); // refresh tables
+                } else {
+                    const errText = await res.text();
+                    alert(errText);
+                }
+            } catch (err) {
+                console.error("Error registering course:", err);
+                alert("Error registering course. See console for details.");
+            }
+        }
+
+        async function dropCourse(courseCode) {
+            try {
+                const res = await fetch(`${ENROLLMENT_API}/disenroll/${studentId}/${courseCode}`, {
+                    method: "DELETE"
+                });
+
+                if (res.ok) {
+                    const msg = await res.text();
+                    alert(msg);
+                    fetchData(); // refresh tables
+                } else {
+                    const errText = await res.text();
+                    alert("Failed to drop: " + errText);
+                }
+            } catch (err) {
+                console.error("Error dropping course:", err);
+                alert("Error dropping course. See console for details.");
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+
+</html>
